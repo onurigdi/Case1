@@ -553,8 +553,9 @@ GameObject:
   - component: {fileID: 5500112807439575376}
   - component: {fileID: 8801783152679640567}
   - component: {fileID: 645764319950726174}
+  - component: {fileID: 7759910164142970724}
   m_Layer: 5
-  m_Name: InfoPanel
+  m_Name: ScoreDisplayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -619,6 +620,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 0.34
+--- !u!114 &7759910164142970724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5361954012920080034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a03798f3c883efa489918292a5a9a59f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _scoreText: {fileID: 8868467415534428829}
 --- !u!1 &6032481167158113167
 GameObject:
   m_ObjectHideFlags: 0
@@ -685,7 +699,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Match Count : 023'
+  m_text: 'Match Count : 0'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

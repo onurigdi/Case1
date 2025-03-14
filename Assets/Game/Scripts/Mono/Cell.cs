@@ -29,11 +29,15 @@ namespace Game.Scripts.Mono
 
         #endregion
 
+        #region Dependency Injection
+
         [Inject]
-        private void Setup(IPublisher<GeneralEvents,object> generalEventsPublisher)
+        private void Setup(IPublisher<GeneralEvents, object> generalEventsPublisher)
         {
             _generalEventsPublisher = generalEventsPublisher;
         }
+
+        #endregion
 
         #region Public Methods
 
@@ -55,14 +59,14 @@ namespace Game.Scripts.Mono
         {
             _isMarked = isMarked;
             xSpriteRenderer.gameObject.SetActive(_isMarked);
-            
+
             if (_isMarked)
                 _generalEventsPublisher?.Publish(GeneralEvents.OnCellMarked, this);
         }
 
         #endregion
 
-        #region Click Detection
+        #region Event Handling
 
         public void OnPointerClick(PointerEventData eventData)
         {
