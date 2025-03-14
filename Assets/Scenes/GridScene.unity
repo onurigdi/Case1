@@ -324,7 +324,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fff795edf481d4a42ae741564dce8aa0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spritePrefab: {fileID: 4022474668592868399, guid: 5f17d886f8794c14ba0da0fa425a82ea,
+  cellPrefab: {fileID: 7437714872074858602, guid: 5f17d886f8794c14ba0da0fa425a82ea,
     type: 3}
 --- !u!4 &228917887
 Transform:
