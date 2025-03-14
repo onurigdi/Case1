@@ -34,6 +34,8 @@ namespace Game.Scripts.Controllers
             _cellPool = cellPool;
             _gameEventPublisher = gameEventPublisher;
             _generalEventssubscriber = gameEventSubscriber;
+            //initial generate
+            CreateGrid(Vector2Int.one * 5);
         }
 
         #endregion
