@@ -8,11 +8,14 @@ namespace Game.Scripts.Pools
         protected override void OnCreated(Cell item)
         {
             item.gameObject.SetActive(false);
+            item.ChangeMarked(false);
         }
 
         protected override void OnSpawned(Cell item)
         {
+            item.ChangeMarked(false);
             item.gameObject.SetActive(true);
+            
         }
 
         protected override void OnDespawned(Cell item)
