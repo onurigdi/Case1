@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Game.Scripts.Enums;
 using Game.Scripts.Events;
 using Game.Scripts.Mono;
@@ -13,10 +14,12 @@ namespace Game.Scripts.Controllers
     {
         #region Fields
 
-        private Cell[,] spriteGrid;
+        private Cell[,] _spriteGrid;
         private IDisposable _disposable;
         private CellPool _cellPool;
         private ISubscriber<GeneralEvents, object> _generalEventssubscriber;
+        private readonly Vector2Int[] _directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+
 
         #endregion
 
@@ -37,6 +40,7 @@ namespace Game.Scripts.Controllers
         {
             var bag = DisposableBag.CreateBuilder();
             _generalEventssubscriber.Subscribe(GeneralEvents.OnGridGenerateRequested, OnGridGenerateRequested).AddTo(bag);
+            _generalEventssubscriber.Subscribe(GeneralEvents.OnCellMarked, OnCellMarked).AddTo(bag);
             _disposable = bag.Build();
         }
 
@@ -55,11 +59,17 @@ namespace Game.Scripts.Controllers
             CreateGrid(gridSize.GridSize);
         }
 
+        private void OnCellMarked(object obj)
+        {
+            Cell markedCell = (Cell)obj;
+            CheckForMatches(markedCell);
+        }
+
         #endregion
 
         #region Grid Generation
 
-        void CreateGrid(Vector2Int gridSize)
+        private void CreateGrid(Vector2Int gridSize)
         {
             if (_cellPool == null) 
             {
@@ -78,21 +88,21 @@ namespace Game.Scripts.Controllers
             float screenWidth = screenHeight * cam.aspect;
             float cellSize = screenWidth / gridSize.x;
 
-            if (spriteGrid != null)
+            if (_spriteGrid != null)
             {
-                for (int y = 0; y < spriteGrid.GetLength(1); y++)
+                for (int y = 0; y < _spriteGrid.GetLength(1); y++)
                 {
-                    for (int x = 0; x < spriteGrid.GetLength(0); x++)
+                    for (int x = 0; x < _spriteGrid.GetLength(0); x++)
                     {
-                        if (spriteGrid[x, y] != null)
+                        if (_spriteGrid[x, y] != null)
                         {
-                            _cellPool.Despawn(spriteGrid[x, y]); 
+                            _cellPool.Despawn(_spriteGrid[x, y]); 
                         }
                     }
                 }
             }
 
-            spriteGrid = new Cell[gridSize.x, gridSize.y];
+            _spriteGrid = new Cell[gridSize.x, gridSize.y];
 
             for (int y = 0; y < gridSize.y; y++)
             {
@@ -108,9 +118,76 @@ namespace Game.Scripts.Controllers
 
                     newCell.SetSize(new Vector2(cellSize, cellSize));
 
-                    spriteGrid[x, y] = newCell;
+                    _spriteGrid[x, y] = newCell;
                 }
             }
+        }
+
+        #endregion
+        
+        #region Match Checking
+        private void CheckForMatches(Cell cell)
+        {
+            Vector2Int cellPosition = FindCellPosition(cell);
+
+            if (cellPosition == new Vector2Int(-1, -1))
+                return; 
+
+            
+            var matchedCells = new HashSet<Cell>();
+            FindConnectedMarkedCells(cellPosition, matchedCells);
+
+            // Eğer 3 veya daha fazla işaretli hücre varsa, hepsini temizle
+            if (matchedCells.Count >= 3)
+            {
+                foreach (var matchedCell in matchedCells)
+                {
+                    matchedCell.ChangeMarked(false);
+                }
+            }
+        }
+
+        private void FindConnectedMarkedCells(Vector2Int startPos, HashSet<Cell> matchedCells)
+        {
+            Stack<Vector2Int> stack = new Stack<Vector2Int>();
+            stack.Push(startPos);
+            matchedCells.Add(_spriteGrid[startPos.x, startPos.y]);
+
+            while (stack.Count > 0)
+            {
+                Vector2Int currentPos = stack.Pop();
+
+                foreach (Vector2Int direction in _directions)
+                {
+                    Vector2Int newPos = currentPos + direction;
+
+                    if (IsValidPosition(newPos) &&
+                        _spriteGrid[newPos.x, newPos.y].IsMarked &&
+                        !matchedCells.Contains(_spriteGrid[newPos.x, newPos.y]))
+                    {
+                        matchedCells.Add(_spriteGrid[newPos.x, newPos.y]);
+                        stack.Push(newPos);
+                    }
+                }
+            }
+        }
+
+        private Vector2Int FindCellPosition(Cell cell)
+        {
+            for (int y = 0; y < _spriteGrid.GetLength(1); y++)
+            {
+                for (int x = 0; x < _spriteGrid.GetLength(0); x++)
+                {
+                    if (_spriteGrid[x, y] == cell)
+                        return new Vector2Int(x, y);
+                }
+            }
+            return new Vector2Int(-1, -1); // Bulunamazsa -1 döndür
+        }
+
+        private bool IsValidPosition(Vector2Int pos)
+        {
+            return pos.x >= 0 && pos.x < _spriteGrid.GetLength(0) && pos.y >= 0 && pos.y < _spriteGrid.GetLength(1);
         }
 
         #endregion

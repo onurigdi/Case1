@@ -1,5 +1,8 @@
+using Game.Scripts.Enums;
+using MessagePipe;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Zenject;
 
 namespace Game.Scripts.Mono
 {
@@ -9,12 +12,14 @@ namespace Game.Scripts.Mono
 
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private SpriteRenderer xSpriteRenderer;
+        [SerializeField] private BoxCollider2D boxCollider2D;
 
         #endregion
 
         #region Private Fields
 
         private bool _isMarked;
+        private IPublisher<GeneralEvents, object> _generalEventsPublisher;
 
         #endregion
 
@@ -24,12 +29,19 @@ namespace Game.Scripts.Mono
 
         #endregion
 
+        [Inject]
+        private void Setup(IPublisher<GeneralEvents,object> generalEventsPublisher)
+        {
+            _generalEventsPublisher = generalEventsPublisher;
+        }
+
         #region Public Methods
 
         public void SetSize(Vector2 size)
         {
             spriteRenderer.size = size;
             xSpriteRenderer.size = size;
+            boxCollider2D.size = size;
             spriteRenderer.transform.localScale = Vector3.one;
             xSpriteRenderer.transform.localScale = Vector3.one;
         }
@@ -43,6 +55,9 @@ namespace Game.Scripts.Mono
         {
             _isMarked = isMarked;
             xSpriteRenderer.gameObject.SetActive(_isMarked);
+            
+            if (_isMarked)
+                _generalEventsPublisher?.Publish(GeneralEvents.OnCellMarked, this);
         }
 
         #endregion
@@ -51,7 +66,6 @@ namespace Game.Scripts.Mono
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            Debug.Log($"Cell clicked at position: {transform.position}");
             ChangeMarked(true);
         }
 
