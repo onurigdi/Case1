@@ -5,24 +5,33 @@ using Game.Scripts.Mono;
 using Game.Scripts.Pools;
 using MessagePipe;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Zenject;
 
 namespace Game.Scripts.Controllers
 {
     public class GridController : MonoBehaviour
     {
+        #region Fields
+
         private Cell[,] spriteGrid;
-        
         private IDisposable _disposable;
         private CellPool _cellPool;
         private ISubscriber<GeneralEvents, object> _generalEventssubscriber;
+
+        #endregion
+
+        #region Dependency Injection
+
         [Inject]
-        private void Setup(ISubscriber<GeneralEvents, object> gameEventSubscriber,CellPool cellPool)
+        private void Setup(ISubscriber<GeneralEvents, object> gameEventSubscriber, CellPool cellPool)
         {
             _cellPool = cellPool;
             _generalEventssubscriber = gameEventSubscriber;
         }
+
+        #endregion
+
+        #region Unity Callbacks
 
         private void OnEnable()
         {
@@ -33,15 +42,22 @@ namespace Game.Scripts.Controllers
 
         private void OnDisable()
         {
-            //dispose to avoid multiple subscription
             _disposable?.Dispose();
         }
+
+        #endregion
+
+        #region Event Handlers
 
         private void OnGridGenerateRequested(object obj)
         {
             var gridSize = (GridGenerateRequest)obj;
             CreateGrid(gridSize.GridSize);
         }
+
+        #endregion
+
+        #region Grid Generation
 
         void CreateGrid(Vector2Int gridSize)
         {
@@ -58,12 +74,10 @@ namespace Game.Scripts.Controllers
                 return;
             }
 
-            //calculate the cell size to fit the screen width
             float screenHeight = cam.orthographicSize * 2;
             float screenWidth = screenHeight * cam.aspect;
             float cellSize = screenWidth / gridSize.x;
 
-            // Despawn used cell objects to pool
             if (spriteGrid != null)
             {
                 for (int y = 0; y < spriteGrid.GetLength(1); y++)
@@ -78,14 +92,12 @@ namespace Game.Scripts.Controllers
                 }
             }
 
-            // Create new Grid from pool
             spriteGrid = new Cell[gridSize.x, gridSize.y];
 
             for (int y = 0; y < gridSize.y; y++)
             {
                 for (int x = 0; x < gridSize.x; x++)
                 {
-                    // Zenject havuzundan Cell nesnesini al
                     Cell newCell = _cellPool.Spawn();
                 
                     newCell.SetPosition(new Vector3(
@@ -100,5 +112,7 @@ namespace Game.Scripts.Controllers
                 }
             }
         }
+
+        #endregion
     }
 }

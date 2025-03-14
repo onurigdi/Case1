@@ -11,7 +11,7 @@ namespace Game.Scripts.Controllers
 {
     public class CanvasController : MonoBehaviour
     {
-        #region UI Elements References
+        #region Serialized Fields
 
         [SerializeField] private TextMeshProUGUI txtInfo;
         [SerializeField] private TMP_InputField inputSize;
@@ -19,9 +19,13 @@ namespace Game.Scripts.Controllers
 
         #endregion
 
-        #region Zenject
+        #region Private Fields
 
         private IPublisher<GeneralEvents, object> _generalEventPublisher;
+
+        #endregion
+
+        #region Dependency Injection
 
         [Inject]
         private void Setup(IPublisher<GeneralEvents, object> generalEventPublisher)
@@ -31,7 +35,7 @@ namespace Game.Scripts.Controllers
 
         #endregion
 
-        #region Unity
+        #region Unity Callbacks
 
         private void OnEnable()
         {
@@ -45,7 +49,7 @@ namespace Game.Scripts.Controllers
 
         #endregion
 
-        #region Private Methods
+        #region Event Subscriptions
 
         private void AddListeners()
         {
@@ -57,10 +61,15 @@ namespace Game.Scripts.Controllers
             btnCreate?.onClick.RemoveAllListeners();
         }
 
+        #endregion
+
+        #region Grid Generation
+
         private void RequestGridGeneration()
         {
             Vector2Int gridSize;
             int sizeValue;
+            
             if (int.TryParse(inputSize.text, out sizeValue) && sizeValue > 0)
             {
                 gridSize = new Vector2Int(sizeValue, sizeValue);
